@@ -1,0 +1,113 @@
+{% extends './base.html' %}
+
+{% block title %}Gestionar Donaciones - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_coordinator.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_coordinador') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('proyecto_list') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('donacion_list') }}" class="sidebar-nav-link active">
+                <span>&#128176;</span>
+                <span>Donaciones</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">Gestionar Donaciones</h1>
+            <p class="page-subtitle">Registro de todas las donaciones del sistema</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar" style="background: linear-gradient(135deg, var(--primary-blue-purple), var(--primary-blue));">C</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">Coordinador</div>
+            </div>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert-custom slide-up mt-4">
+            <span>&#8505;</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon purple">&#128176;</div>
+            <div class="stat-value">${{ total or 0 }}</div>
+            <div class="stat-label">Total Recaudado</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon blue">&#10084;</div>
+            <div class="stat-value">{{ donaciones|length if donaciones else 0 }}</div>
+            <div class="stat-label">Total Donaciones</div>
+        </div>
+    </div>
+    
+    <div class="mt-4 slide-up">
+        {% if donaciones %}
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Donante</th>
+                    <th>Proyecto</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for donacion in donaciones %}
+                <tr>
+                    <td><span class="badge-primary">#{{ donacion.id_donacion }}</span></td>
+                    <td style="font-weight: 600;">{{ donacion.nombre_donante or 'Anonimo' }}</td>
+                    <td>{{ donacion.nombre_proyecto or 'Proyecto' }}</td>
+                    <td style="color: var(--primary-magenta); font-weight: 600;">${{ donacion.monto }}</td>
+                    <td style="color: var(--text-secondary);">{{ donacion.fecha or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="card-custom text-center">
+            <div style="font-size: 4rem; margin-bottom: 16px;">&#128176;</div>
+            <h3 style="color: var(--text-primary); margin-bottom: 8px;">No hay donaciones registradas</h3>
+            <p style="color: var(--text-secondary);">Las donaciones aparecceran aqui cuando los usuarios empiecen a donar.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends './base.html' %}
+
+{% block title %}Registrarse - AmicuSoft{% endblock %}
+
+{% block body %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="form-container fade-in">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='image/moneda.jpg') }}" alt="AmicuSoft Logo">
+        </div>
+        
+        <h1 class="form-title">Crear Cuenta</h1>
+        <p class="form-subtitle">Unete a nuestra comunidad de donantes</p>
+        
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert-custom slide-up">
+                <span>&#8505;</span>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        
+        <form action="/register" method="post" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            
+            <div class="form-floating-custom slide-up stagger-1">
+                <input type="text" id="username" name="username" placeholder=" " required>
+                <label for="username">Nombre de Usuario</label>
+            </div>
+            
+            <div class="form-floating-custom slide-up stagger-2">
+                <input type="email" id="correo" name="correo" placeholder=" " required>
+                <label for="correo">Correo Electronico</label>
+            </div>
+            
+            <div class="form-floating-custom slide-up stagger-3">
+                <input type="password" id="password" name="password" placeholder=" " required>
+                <label for="password">Contrasena</label>
+            </div>
+            
+            <div class="form-floating-custom slide-up stagger-4">
+                <input type="text" id="fullname" name="fullname" placeholder=" " required>
+                <label for="fullname">Nombre Completo</label>
+            </div>
+            
+            <button type="submit" class="btn-primary-gradient w-100 py-3 mt-3 slide-up stagger-5">
+                Crear Cuenta
+            </button>
+            
+            <div class="divider slide-up">o</div>
+            
+            <button type="button" onclick="window.location.href='/login'" class="btn-outline-custom w-100 py-3 slide-up">
+                Ya tengo una cuenta
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

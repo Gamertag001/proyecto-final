@@ -1,0 +1,103 @@
+{% extends './base.html' %}
+
+{% block title %}Mis Donaciones - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_donor.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('home') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Inicio</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('historial_donaciones_usuario') }}" class="sidebar-nav-link active">
+                <span>&#128176;</span>
+                <span>Mis Donaciones</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">Mis Donaciones</h1>
+            <p class="page-subtitle">Historial de todas tus contribuciones</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar">{{ current_user.fullname[0] | upper }}</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">Donador</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon purple">&#128176;</div>
+            <div class="stat-value">${{ total_donado or 0 }}</div>
+            <div class="stat-label">Total Donado</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon blue">&#10084;</div>
+            <div class="stat-value">{{ donaciones|length if donaciones else 0 }}</div>
+            <div class="stat-label">Donaciones Realizadas</div>
+        </div>
+    </div>
+    
+    <div class="mt-4 slide-up">
+        {% if donaciones %}
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Proyecto</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for donacion in donaciones %}
+                <tr>
+                    <td><span class="badge-primary">#{{ donacion.id_donacion }}</span></td>
+                    <td style="font-weight: 600;">{{ donacion.nombre_proyecto or 'Proyecto' }}</td>
+                    <td style="color: var(--primary-magenta); font-weight: 600;">${{ donacion.monto }}</td>
+                    <td style="color: var(--text-secondary);">{{ donacion.fecha or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="card-custom text-center">
+            <div style="font-size: 4rem; margin-bottom: 16px;">&#128176;</div>
+            <h3 style="color: var(--text-primary); margin-bottom: 8px;">Aun no has realizado donaciones</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Explora los proyectos activos y haz tu primera donacion!</p>
+            <a href="{{ url_for('listar_proyectos') }}" class="btn-primary-gradient">
+                Ver Proyectos
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

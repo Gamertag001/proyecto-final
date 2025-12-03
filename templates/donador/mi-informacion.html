@@ -1,0 +1,168 @@
+{% extends './base.html' %}
+
+{% block title %}Mi Informacion - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_donor.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('home') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Inicio</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('historial_donaciones_usuario') }}" class="sidebar-nav-link">
+                <span>&#128176;</span>
+                <span>Mis Donaciones</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('mi_informacion') }}" class="sidebar-nav-link active">
+                <span>&#128100;</span>
+                <span>Mi Informacion</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">Mi Informacion</h1>
+            <p class="page-subtitle">Actualiza tus datos de contacto y preferencias</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar">{{ current_user.fullname[0] | upper }}</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">Donador</div>
+            </div>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert-custom slide-up mt-4 {% if category == 'danger' %}alert-danger{% elif category == 'success' %}alert-success{% elif category == 'warning' %}alert-warning{% endif %}">
+            <span>{% if category == 'danger' %}&#10060;{% elif category == 'success' %}&#9989;{% else %}&#8505;{% endif %}</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card-custom slide-up">
+                <h3 class="card-title-gradient mb-4">
+                    <span>&#128100;</span> Datos Personales y Preferencias
+                </h3>
+                
+                <form method="POST" action="{{ url_for('mi_informacion') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-custom">Nombre Completo *</label>
+                            <input type="text" name="fullname" class="form-input-custom" 
+                                   value="{{ perfil.fullname or '' }}" required
+                                   placeholder="Tu nombre completo">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-custom">Correo Electronico *</label>
+                            <input type="email" name="correo" class="form-input-custom" 
+                                   value="{{ perfil.correo or '' }}" required
+                                   placeholder="tu@correo.com">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-custom">Telefono</label>
+                            <input type="tel" name="telefono" class="form-input-custom" 
+                                   value="{{ perfil.telefono or '' }}"
+                                   placeholder="+1 234 567 8900">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-custom">Usuario</label>
+                            <input type="text" class="form-input-custom" 
+                                   value="{{ perfil.nombre or '' }}" disabled
+                                   style="background: var(--bg-secondary); cursor: not-allowed;">
+                            <small style="color: var(--text-muted);">El nombre de usuario no se puede cambiar</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label-custom">Direccion</label>
+                        <textarea name="direccion" class="form-input-custom" rows="2"
+                                  placeholder="Tu direccion completa">{{ perfil.direccion or '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label-custom">Notas Adicionales</label>
+                        <textarea name="notas" class="form-input-custom" rows="3"
+                                  placeholder="Cualquier informacion adicional que desees compartir">{{ perfil.notas or '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-4" style="padding: 20px; background: var(--bg-secondary); border-radius: var(--radius-md);">
+                        <h4 style="margin-bottom: 16px; color: var(--text-primary); font-size: 1.1rem;">
+                            <span>&#128276;</span> Preferencias de Comunicacion
+                        </h4>
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem;">
+                            Selecciona como te gustaria recibir notificaciones sobre proyectos y donaciones.
+                        </p>
+                        
+                        <div class="form-check mb-3" style="display: flex; align-items: center; gap: 12px;">
+                            <input type="checkbox" name="preferencia_email" id="preferencia_email"
+                                   {% if perfil.preferencia_email %}checked{% endif %}
+                                   style="width: 20px; height: 20px; accent-color: var(--primary-purple);">
+                            <label for="preferencia_email" style="color: var(--text-primary); cursor: pointer;">
+                                <strong>Notificaciones por Email</strong><br>
+                                <small style="color: var(--text-muted);">Recibe actualizaciones sobre proyectos y confirmaciones de donacion</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check" style="display: flex; align-items: center; gap: 12px;">
+                            <input type="checkbox" name="preferencia_sms" id="preferencia_sms"
+                                   {% if perfil.preferencia_sms %}checked{% endif %}
+                                   style="width: 20px; height: 20px; accent-color: var(--primary-purple);">
+                            <label for="preferencia_sms" style="color: var(--text-primary); cursor: pointer;">
+                                <strong>Notificaciones por SMS</strong><br>
+                                <small style="color: var(--text-muted);">Recibe mensajes de texto con informacion importante</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn-primary-gradient">
+                            <span>&#128190;</span> Guardar Cambios
+                        </button>
+                        <a href="{{ url_for('home') }}" class="btn-outline-custom">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends './base.html' %}
+
+{% block title %}Inicio - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_donor.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('home') }}" class="sidebar-nav-link active">
+                <span>&#127968;</span>
+                <span>Inicio</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('historial_donaciones_usuario') }}" class="sidebar-nav-link">
+                <span>&#128176;</span>
+                <span>Mis Donaciones</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('mi_informacion') }}" class="sidebar-nav-link">
+                <span>&#128100;</span>
+                <span>Mi Informacion</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">Bienvenido, {{ current_user.fullname }}!</h1>
+            <p class="page-subtitle">Explora proyectos y haz la diferencia hoy</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar">{{ current_user.fullname[0] | upper }}</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">Donador</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon purple">&#128176;</div>
+            <div class="stat-value">${{ total_donado }}</div>
+            <div class="stat-label">Total Donado</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon blue">&#128196;</div>
+            <div class="stat-value">{{ numero_proyectos }}</div>
+            <div class="stat-label">Proyectos Apoyados</div>
+        </div>
+        <div class="stat-card slide-up stagger-3">
+            <div class="stat-icon purple">&#10084;</div>
+            <div class="stat-value">{{ numero_donaciones }}</div>
+            <div class="stat-label">Donaciones Realizadas</div>
+        </div>
+    </div>
+    
+    <div class="welcome-section slide-up">
+        <img src="{{ url_for('static', filename='image/ninos.jpg') }}" alt="Bienvenido" style="width: 100%; max-width: 400px; height: auto; margin-bottom: 24px; border-radius: 16px; filter: drop-shadow(0 8px 24px rgba(218, 24, 254, 0.3));">
+        <h2 class="welcome-title">Comienza a Donar</h2>
+        <p class="welcome-subtitle">Explora los proyectos activos y encuentra una causa que te inspire. Cada donacion cuenta!</p>
+        <a href="{{ url_for('listar_proyectos') }}" class="btn-primary-gradient">
+            Ver Proyectos &#8594;
+        </a>
+    </div>
+</div>
+{% endblock %}

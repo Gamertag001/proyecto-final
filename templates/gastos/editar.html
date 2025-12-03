@@ -1,0 +1,136 @@
+{% extends './base.html' %}
+
+{% block title %}Editar Gasto - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_coordinator.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_coordinador') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <a href="{{ url_for('listar_gastos_proyecto', id_proyecto=gasto.id_proyecto) }}" style="color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 8px;">
+            <span>&#8592;</span> Volver a Gastos
+        </a>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert-custom slide-up mt-4 {% if category == 'danger' %}alert-danger{% elif category == 'success' %}alert-success{% endif %}">
+            <span>{% if category == 'danger' %}&#10060;{% elif category == 'success' %}&#9989;{% else %}&#8505;{% endif %}</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+    <div class="row mt-4 justify-content-center">
+        <div class="col-md-8">
+            <div class="card-custom slide-up">
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 16px; border-radius: 50%; background: linear-gradient(135deg, rgba(218, 24, 254, 0.2), rgba(153, 69, 255, 0.2)); display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 2.5rem;">&#9998;</span>
+                    </div>
+                    <h1 class="form-title">Editar Gasto</h1>
+                    <p class="form-subtitle">Proyecto: {{ proyecto.nombre }}</p>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    <div class="form-floating-custom">
+                        <select id="categoria" name="categoria" required style="width: 100%; padding: 16px 20px; border: 2px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: inherit;">
+                            <option value="">Selecciona una categoria</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.nombre }}" {% if gasto.categoria == cat.nombre %}selected{% endif %}>{{ cat.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <label style="display: block; margin-bottom: 20px; margin-top: -12px; font-size: 0.85rem; color: var(--text-muted);">Categoria del gasto</label>
+                    
+                    <div class="form-floating-custom">
+                        <textarea id="descripcion" name="descripcion" placeholder=" " required style="width: 100%; min-height: 100px; padding: 16px 20px; border: 2px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); resize: vertical; font-family: inherit;">{{ gasto.descripcion }}</textarea>
+                    </div>
+                    <label for="descripcion" style="display: block; margin-bottom: 20px; margin-top: -12px; font-size: 0.85rem; color: var(--text-muted);">Descripcion del gasto</label>
+                    
+                    <div class="form-floating-custom">
+                        <input type="number" id="monto" name="monto" value="{{ gasto.monto }}" min="0.01" step="0.01" placeholder=" " required>
+                        <label for="monto">Monto ($)</label>
+                    </div>
+                    
+                    <div class="form-floating-custom">
+                        <input type="date" id="fecha_gasto" name="fecha_gasto" value="{{ gasto.fecha_gasto.strftime('%Y-%m-%d') if gasto.fecha_gasto else '' }}" placeholder=" " required>
+                        <label for="fecha_gasto">Fecha del gasto</label>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Comprobante Digital</label>
+                        
+                        {% if gasto.archivo_path %}
+                        <div style="background: var(--bg-secondary); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <span style="color: var(--primary-magenta); margin-right: 8px;">&#128206;</span>
+                                <span>{{ gasto.archivo_nombre }}</span>
+                            </div>
+                            <a href="{{ url_for('descargar_comprobante', id_gasto=gasto.id_gasto) }}" class="btn-outline-custom" style="padding: 4px 12px; font-size: 0.85rem;">Ver</a>
+                        </div>
+                        {% endif %}
+                        
+                        <div style="border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 24px; text-align: center; background: var(--bg-secondary);">
+                            <input type="file" id="comprobante" name="comprobante" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            <label for="comprobante" style="cursor: pointer;">
+                                <span style="font-size: 2rem; display: block; margin-bottom: 8px;">&#128206;</span>
+                                <span style="color: var(--primary-magenta); font-weight: 500;">{% if gasto.archivo_path %}Reemplazar archivo{% else %}Seleccionar archivo{% endif %}</span>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">PDF, JPG o PNG (max. 5MB)</p>
+                            </label>
+                            <div id="file-name" style="margin-top: 12px; color: var(--text-secondary);"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-3 mt-4 justify-content-end">
+                        <a href="{{ url_for('listar_gastos_proyecto', id_proyecto=gasto.id_proyecto) }}" class="btn-outline-custom">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn-primary-gradient">
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('comprobante').addEventListener('change', function(e) {
+    var fileName = e.target.files[0] ? e.target.files[0].name : '';
+    document.getElementById('file-name').textContent = fileName;
+});
+</script>
+{% endblock %}

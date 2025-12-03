@@ -1,0 +1,125 @@
+{% extends './base.html' %}
+
+{% block title %}Panel Administrador - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_admin.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel') }}" class="sidebar-nav-link active">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('manage_user') }}" class="sidebar-nav-link">
+                <span>&#128101;</span>
+                <span>Usuarios</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_coordinador') }}" class="sidebar-nav-link">
+                <span>&#128202;</span>
+                <span>Coordinacion</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('reportes') }}" class="sidebar-nav-link">
+                <span>&#128202;</span>
+                <span>Reportes</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">Panel de Administracion</h1>
+            <p class="page-subtitle">Gestiona usuarios, proyectos y donaciones</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #ff4757, #ff6b81);">A</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">Administrador</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon purple">&#128101;</div>
+            <div class="stat-value">{{ usuarios_registrados }}</div>
+            <div class="stat-label">Usuarios Registrados</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon blue">&#128196;</div>
+            <div class="stat-value">{{ proyectos_activos }}</div>
+            <div class="stat-label">Proyectos Activos</div>
+        </div>
+        <div class="stat-card slide-up stagger-3">
+            <div class="stat-icon purple">&#128176;</div>
+            <div class="stat-value">${{ total_recaudado }}</div>
+            <div class="stat-label">Total Recaudado</div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card-custom slide-up stagger-1">
+                <h3 class="card-title-gradient">&#128101; Gestion de Usuarios</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Administra los usuarios del sistema, asigna roles y permisos.</p>
+                <a href="{{ url_for('manage_user') }}" class="btn-primary-gradient w-100">
+                    Administrar Usuarios
+                </a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-custom slide-up stagger-2">
+                <h3 class="card-title-gradient">&#128196; Proyectos</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Revisa y gestiona los proyectos de recaudacion de fondos.</p>
+                <a href="{{ url_for('listar_proyectos') }}" class="btn-secondary-gradient w-100">
+                    Ver Proyectos
+                </a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-custom slide-up stagger-3">
+                <h3 class="card-title-gradient">&#128202; Coordinacion</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Accede al panel de coordinacion de proyectos.</p>
+                <a href="{{ url_for('panel_coordinador') }}" class="btn-outline-custom w-100">
+                    Panel Coordinador
+                </a>
+            </div>
+        </div>
+        <div class="col-md-4 mt-3">
+            <div class="card-custom slide-up stagger-4">
+                <h3 class="card-title-gradient">&#128202; Reportes</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Visualiza reportes detallados del sistema.</p>
+                <a href="{{ url_for('reportes') }}" class="btn-secondary-gradient w-100">
+                    Ver Reportes
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

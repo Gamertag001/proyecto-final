@@ -1,0 +1,179 @@
+{% extends './base.html' %}
+
+{% block title %}Gastos del Proyecto - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_coordinator.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_coordinador') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('reportes_coordinador') }}" class="sidebar-nav-link">
+                <span>&#128202;</span>
+                <span>Reportes</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <a href="{{ url_for('panel_coordinador') }}" style="color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <span>&#8592;</span> Volver al Panel
+            </a>
+            <h1 class="page-title">Gastos: {{ proyecto.nombre }}</h1>
+            <p class="page-subtitle">Gestion de gastos y comprobantes del proyecto</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar" style="background: linear-gradient(135deg, var(--primary-blue-purple), var(--primary-blue));">G</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">{% if current_user.id_rol == 2 %}Administrador{% else %}Coordinador{% endif %}</div>
+            </div>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert-custom slide-up mt-4 {% if category == 'danger' %}alert-danger{% elif category == 'success' %}alert-success{% elif category == 'warning' %}alert-warning{% endif %}">
+            <span>{% if category == 'danger' %}&#10060;{% elif category == 'success' %}&#9989;{% else %}&#8505;{% endif %}</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon purple">&#128176;</div>
+            <div class="stat-value">${{ monto_recaudado }}</div>
+            <div class="stat-label">Fondos Recaudados</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon blue">&#128181;</div>
+            <div class="stat-value">${{ total_gastos }}</div>
+            <div class="stat-label">Total Gastado</div>
+        </div>
+        <div class="stat-card slide-up stagger-3">
+            <div class="stat-icon {% if fondos_disponibles >= 0 %}green{% else %}red{% endif %}">&#127937;</div>
+            <div class="stat-value">${{ fondos_disponibles }}</div>
+            <div class="stat-label">Disponible para Gastar</div>
+        </div>
+    </div>
+    
+    {% if not puede_registrar_gastos %}
+    <div class="alert-custom slide-up mt-4 alert-warning">
+        <span>&#9888;</span>
+        <span>No se pueden registrar gastos hasta que el proyecto reciba donaciones. Los gastos solo pueden realizarse con fondos recaudados.</span>
+    </div>
+    {% endif %}
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card-custom slide-up">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="card-title-gradient mb-0">Lista de Gastos</h3>
+                    {% if proyecto.archivado %}
+                    <span class="badge" style="background: var(--warning-bg); color: var(--warning-color); padding: 8px 16px; border-radius: var(--radius-md);">Proyecto Archivado</span>
+                    {% elif puede_registrar_gastos %}
+                    <a href="{{ url_for('crear_gasto', id_proyecto=proyecto.id_proyecto) }}" class="btn-primary-gradient">
+                        <span>&#10133;</span> Registrar Gasto
+                    </a>
+                    {% else %}
+                    <span class="badge" style="background: var(--warning-bg); color: var(--warning-color); padding: 8px 16px; border-radius: var(--radius-md);">Sin fondos recaudados</span>
+                    {% endif %}
+                </div>
+                
+                {% if gastos %}
+                <div style="overflow-x: auto;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Categoria</th>
+                                <th>Descripcion</th>
+                                <th>Monto</th>
+                                <th>Registrado por</th>
+                                <th>Comprobante</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gasto in gastos %}
+                            <tr>
+                                <td>{{ gasto.fecha_gasto.strftime('%d/%m/%Y') if gasto.fecha_gasto else '-' }}</td>
+                                <td><span class="badge" style="background: var(--primary-magenta-light); color: var(--primary-magenta); padding: 4px 12px; border-radius: var(--radius-sm);">{{ gasto.categoria }}</span></td>
+                                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ gasto.descripcion }}">{{ gasto.descripcion }}</td>
+                                <td style="font-weight: 600; color: var(--primary-magenta);">${{ gasto.monto }}</td>
+                                <td>{{ gasto.nombre_usuario or 'N/A' }}</td>
+                                <td>
+                                    {% if gasto.archivo_path %}
+                                    <a href="{{ url_for('descargar_comprobante', id_gasto=gasto.id_gasto) }}" class="btn-outline-custom" style="padding: 4px 12px; font-size: 0.85rem;">
+                                        <span>&#128196;</span> Ver
+                                    </a>
+                                    {% else %}
+                                    <span style="color: var(--text-muted);">Sin archivo</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not proyecto.archivado %}
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ url_for('editar_gasto', id_gasto=gasto.id_gasto) }}" class="btn-outline-custom" style="padding: 4px 12px; font-size: 0.85rem;">
+                                            <span>&#9998;</span>
+                                        </a>
+                                        <form action="{{ url_for('eliminar_gasto', id_gasto=gasto.id_gasto) }}" method="post" style="display: inline;" onsubmit="return confirm('Estas seguro de eliminar este gasto?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn-outline-custom" style="padding: 4px 12px; font-size: 0.85rem; border-color: var(--danger-color); color: var(--danger-color);">
+                                                <span>&#128465;</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% else %}
+                                    <span style="color: var(--text-muted);">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <span style="font-size: 3rem; display: block; margin-bottom: 16px;">&#128181;</span>
+                    <p>No hay gastos registrados para este proyecto</p>
+                    {% if not proyecto.archivado %}
+                    <a href="{{ url_for('crear_gasto', id_proyecto=proyecto.id_proyecto) }}" class="btn-primary-gradient mt-3">
+                        Registrar primer gasto
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

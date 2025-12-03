@@ -1,0 +1,25 @@
+{% extends './base.html' %}
+
+{% block title %}Cuenta Desactivada - AmicuSoft{% endblock %}
+
+{% block body %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="form-container fade-in" style="max-width: 500px; text-align: center;">
+        <div style="width: 100px; height: 100px; margin: 0 auto 24px; border-radius: 50%; background: linear-gradient(135deg, rgba(255, 71, 87, 0.2), rgba(255, 107, 129, 0.2)); display: flex; align-items: center; justify-content: center;">
+            <span style="font-size: 3rem;">&#128683;</span>
+        </div>
+        
+        <h1 class="form-title">Cuenta Desactivada</h1>
+        <p class="form-subtitle" style="margin-bottom: 24px;">Lo sentimos, tu cuenta no esta activa en este momento.</p>
+        
+        <div class="alert-custom" style="text-align: left;">
+            <span>&#8505;</span>
+            <span>Si crees que esto es un error o necesitas recuperar el acceso, por favor contacta con un administrador.</span>
+        </div>
+        
+        <a href="{{ url_for('login') }}" class="btn-primary-gradient w-100 py-3 mt-4">
+            Volver al Login
+        </a>
+    </div>
+</div>
+{% endblock %}

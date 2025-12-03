@@ -1,0 +1,201 @@
+{% extends './base.html' %}
+
+{% block title %}Reportes - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_admin.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('manage_user') }}" class="sidebar-nav-link">
+                <span>&#128101;</span>
+                <span>Usuarios</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_coordinador') }}" class="sidebar-nav-link">
+                <span>&#128202;</span>
+                <span>Coordinacion</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('reportes') }}" class="sidebar-nav-link active">
+                <span>&#128�;</span>
+                <span>Reportes</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">Reportes del Sistema</h1>
+            <p class="page-subtitle">Análisis completo de usuarios, proyectos y donaciones</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #ff4757, #ff6b81);">A</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">Administrador</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN DE USUARIOS -->
+    <div class="mt-4 slide-up">
+        <div class="divider">Estadísticas de Usuarios</div>
+    </div>
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon purple">&#128101;</div>
+            <div class="stat-value">{{ usuarios_activos }}</div>
+            <div class="stat-label">Usuarios Activos</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon blue">&#128178;</div>
+            <div class="stat-value">{{ donadores }}</div>
+            <div class="stat-label">Donadores</div>
+        </div>
+        <div class="stat-card slide-up stagger-3">
+            <div class="stat-icon purple">&#128202;</div>
+            <div class="stat-value">{{ coordinadores }}</div>
+            <div class="stat-label">Coordinadores</div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN DE PROYECTOS -->
+    <div class="mt-4 slide-up">
+        <div class="divider">Estadísticas de Proyectos</div>
+    </div>
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon blue">&#128196;</div>
+            <div class="stat-value">{{ total_proyectos }}</div>
+            <div class="stat-label">Proyectos Totales</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon purple">&#127937;</div>
+            <div class="stat-value">${{ total_meta }}</div>
+            <div class="stat-label">Meta Total</div>
+        </div>
+        <div class="stat-card slide-up stagger-3">
+            <div class="stat-icon purple">&#128176;</div>
+            <div class="stat-value">${{ total_recaudado }}</div>
+            <div class="stat-label">Total Recaudado</div>
+        </div>
+        <div class="stat-card slide-up stagger-4">
+            <div class="stat-icon blue">&#128202;</div>
+            <div class="stat-value">{{ porcentaje_total }}%</div>
+            <div class="stat-label">Progreso General</div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN DE DONACIONES -->
+    <div class="mt-4 slide-up">
+        <div class="divider">Estadísticas de Donaciones</div>
+    </div>
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon purple">&#128176;</div>
+            <div class="stat-value">{{ total_donaciones }}</div>
+            <div class="stat-label">Total Donaciones</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon blue">&#128176;</div>
+            <div class="stat-value">${{ suma_donaciones }}</div>
+            <div class="stat-label">Suma Total</div>
+        </div>
+        <div class="stat-card slide-up stagger-3">
+            <div class="stat-icon purple">&#128202;</div>
+            <div class="stat-value">${{ donacion_promedio }}</div>
+            <div class="stat-label">Promedio por Donación</div>
+        </div>
+    </div>
+    
+    <!-- TOP PROYECTOS -->
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card-custom slide-up">
+                <h3 class="card-title-gradient">Top 5 Proyectos</h3>
+                <div style="margin-top: 20px;">
+                    {% if top_proyectos %}
+                        {% for proyecto in top_proyectos %}
+                        <div style="padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-primary);">{{ loop.index }}. {{ proyecto.nombre }}</div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">${{ proyecto.monto_recaudado or 0 }} / ${{ proyecto.monto_objetivo }}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                {% set pct = ((proyecto.monto_recaudado or 0) / (proyecto.monto_objetivo or 1) * 100) | int %}
+                                {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+                                <div style="font-weight: 700; color: var(--primary-magenta);">{{ pct }}%</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; color: var(--text-secondary); padding: 20px;">Sin proyectos disponibles</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- TABLA DE DONACIONES POR PROYECTO -->
+        <div class="col-lg-6">
+            <div class="card-custom slide-up stagger-1">
+                <h3 class="card-title-gradient">Donaciones por Proyecto</h3>
+                <div style="margin-top: 20px; overflow-x: auto;">
+                    {% if donaciones_por_proyecto %}
+                    <table class="table-custom" style="font-size: 0.9rem;">
+                        <thead>
+                            <tr>
+                                <th>Proyecto</th>
+                                <th>Donaciones</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in donaciones_por_proyecto %}
+                            <tr>
+                                <td style="font-weight: 600;">{{ row[1] }}</td>
+                                <td style="text-align: center;">{{ row[2] or 0 }}</td>
+                                <td style="color: var(--primary-magenta); font-weight: 600;">${{ row[3] or 0 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div style="text-align: center; color: var(--text-secondary); padding: 20px;">Sin donaciones registradas</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

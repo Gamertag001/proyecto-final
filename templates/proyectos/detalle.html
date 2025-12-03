@@ -1,0 +1,115 @@
+{% extends './base.html' %}
+
+{% block title %}{{ proyecto.nombre }} - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_general.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <a href="{{ url_for('listar_proyectos') }}" style="color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 8px;">
+            <span>&#8592;</span> Volver a Proyectos
+        </a>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <div class="card-custom slide-up">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                    <span class="badge-success">Activo</span>
+                    <span style="color: var(--text-muted); font-size: 0.9rem;">ID: #{{ proyecto.id_proyecto }}</span>
+                </div>
+                
+                <h1 class="page-title" style="font-size: 2.5rem; margin-bottom: 16px;">{{ proyecto.nombre }}</h1>
+                
+                <p style="color: var(--text-secondary); font-size: 1.1rem; line-height: 1.8; margin-bottom: 32px;">
+                    {{ proyecto.descripcion or 'Este proyecto aun no tiene una descripcion detallada.' }}
+                </p>
+                
+                <div class="divider">Progreso de Recaudacion</div>
+                
+                <div style="margin-top: 24px;">
+                    {% set porcentaje = ((proyecto.monto_recaudado or 0) / (proyecto.monto_objetivo or 1) * 100) | int %}
+                    {% if porcentaje > 100 %}{% set porcentaje = 100 %}{% endif %}
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="font-size: 2rem; font-weight: 700; color: var(--text-primary);">
+                            ${{ proyecto.monto_recaudado or 0 }}
+                        </span>
+                        <span style="font-size: 1.2rem; color: var(--text-secondary);">
+                            de ${{ proyecto.monto_objetivo or 0 }}
+                        </span>
+                    </div>
+                    
+                    <div class="progress-bar-custom" style="height: 12px;">
+                        <div class="progress-fill" style="width: {{ porcentaje }}%"></div>
+                    </div>
+                    
+                    <p style="text-align: center; margin-top: 12px; color: var(--text-secondary);">
+                        {{ porcentaje }}% completado
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card-custom slide-up stagger-1">
+                <h3 class="card-title-gradient">Apoya este Proyecto</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                    Tu donacion puede marcar la diferencia. Cada aporte cuenta!
+                </p>
+                
+                {% if current_user.id_rol == 1 %}
+                <a href="{{ url_for('formulario_donacion', id_proyecto=proyecto.id_proyecto) }}" class="btn-primary-gradient w-100 py-3">
+                    Donar Ahora
+                </a>
+                {% else %}
+                <div class="alert-custom">
+                    <span>&#8505;</span>
+                    <span>Solo los donadores pueden realizar donaciones.</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="card-custom slide-up stagger-2 mt-4">
+                <h3 class="card-title-gradient">Estadisticas</h3>
+                <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-secondary);">Meta</span>
+                        <span style="font-weight: 600; color: var(--text-primary);">${{ proyecto.monto_objetivo or 0 }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-secondary);">Recaudado</span>
+                        <span style="font-weight: 600; color: var(--primary-magenta);">${{ proyecto.monto_recaudado or 0 }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-secondary);">Progreso</span>
+                        <span style="font-weight: 600; color: var(--text-primary);">{{ porcentaje }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

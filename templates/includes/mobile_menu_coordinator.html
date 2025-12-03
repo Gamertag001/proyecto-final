@@ -1,0 +1,51 @@
+<header class="mobile-header">
+    <span class="mobile-brand">AmicuSoft</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <button class="theme-toggle" aria-label="Cambiar tema" style="position: static; box-shadow: none;">
+            <div class="theme-toggle-icon sun-icon">&#9728;</div>
+            <div class="theme-toggle-icon moon-icon">&#9790;</div>
+        </button>
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</header>
+
+<nav class="mobile-nav" id="mobileNav">
+    <ul class="mobile-nav-list">
+        <li>
+            <a href="{{ url_for('panel_coordinador') }}" class="mobile-nav-link {% if request.endpoint == 'panel_coordinador' %}active{% endif %}">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('listar_proyectos') }}" class="mobile-nav-link {% if request.endpoint == 'listar_proyectos' %}active{% endif %}">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('crear_proyecto') }}" class="mobile-nav-link {% if request.endpoint == 'crear_proyecto' %}active{% endif %}">
+                <span>&#10133;</span>
+                <span>Crear Proyecto</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('reportes_coordinador') }}" class="mobile-nav-link {% if request.endpoint == 'reportes_coordinador' %}active{% endif %}">
+                <span>&#128202;</span>
+                <span>Reportes</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('logout') }}" class="mobile-nav-link logout">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="mobile-overlay" id="mobileOverlay"></div>

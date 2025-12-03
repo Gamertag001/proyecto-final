@@ -1,0 +1,152 @@
+{% extends './base.html' %}
+
+{% block title %}Proyectos - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_general.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        {% if current_user.id_rol == 1 %}
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('home') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Inicio</span>
+            </a>
+        </li>
+        {% elif current_user.id_rol == 2 %}
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        {% elif current_user.id_rol == 3 %}
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_coordinador') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        {% endif %}
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link active">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        {% if current_user.id_rol == 1 %}
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('historial_donaciones_usuario') }}" class="sidebar-nav-link">
+                <span>&#128176;</span>
+                <span>Mis Donaciones</span>
+            </a>
+        </li>
+        {% endif %}
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">Proyectos Activos</h1>
+            <p class="page-subtitle">Descubre proyectos y haz la diferencia</p>
+        </div>
+        <div class="user-info">
+            {% if current_user.is_authenticated %}
+            <div class="user-avatar">{{ current_user.fullname[0] | upper }}</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">
+                    {% if current_user.id_rol == 1 %}Donador{% elif current_user.id_rol == 2 %}Admin{% else %}Coordinador{% endif %}
+                </div>
+            </div>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn-primary-gradient">Iniciar Sesión</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert-custom slide-up mt-4">
+            <span>&#8505;</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+    {% if current_user.id_rol in [2, 3] %}
+    <div class="mt-4 slide-up">
+        <a href="{{ url_for('crear_proyecto') }}" class="btn-primary-gradient">
+            + Crear Nuevo Proyecto
+        </a>
+    </div>
+    {% endif %}
+    
+    <div class="row mt-4">
+        {% if proyectos %}
+            {% for proyecto in proyectos %}
+            <div class="col-md-4 mb-4">
+                <div class="project-card slide-up stagger-{{ loop.index }}">
+                    <div class="project-header">
+                        <h3 class="project-title">{{ proyecto.nombre }}</h3>
+                        <span class="badge-success">Activo</span>
+                    </div>
+                    <div class="project-body">
+                        <p class="project-description">{{ proyecto.descripcion or 'Sin descripcion disponible.' }}</p>
+                        
+                        <div class="progress-bar-custom">
+                            {% set porcentaje = ((proyecto.monto_recaudado or 0) / (proyecto.monto_objetivo or 1) * 100) | int %}
+                            {% if porcentaje > 100 %}{% set porcentaje = 100 %}{% endif %}
+                            <div class="progress-fill" style="width: {{ porcentaje }}%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span>${{ proyecto.monto_recaudado or 0 }}</span>
+                            <span>Meta: ${{ proyecto.monto_objetivo or 0 }}</span>
+                        </div>
+                        
+                        {% if current_user.id_rol == 1 and donaciones_usuario.get(proyecto.id_proyecto) %}
+                        <div style="margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; text-align: center;">
+                            <small style="color: var(--text-secondary);">Tu aporte:</small>
+                            <div style="font-weight: 700; color: var(--primary-magenta);">${{ donaciones_usuario.get(proyecto.id_proyecto) }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="project-footer">
+                        <a href="{{ url_for('detalle_proyecto', id_proyecto=proyecto.id_proyecto) }}" class="btn-outline-custom" style="flex: 1; text-align: center; padding: 10px;">
+                            Ver Detalles
+                        </a>
+                        {% if current_user.id_rol == 1 %}
+                        <a href="{{ url_for('formulario_donacion', id_proyecto=proyecto.id_proyecto) }}" class="btn-primary-gradient" style="flex: 1; text-align: center; padding: 10px;">
+                            Donar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="card-custom text-center slide-up">
+                    <div style="font-size: 4rem; margin-bottom: 16px;">&#128196;</div>
+                    <h3 style="color: var(--text-primary); margin-bottom: 8px;">No hay proyectos disponibles</h3>
+                    <p style="color: var(--text-secondary);">Pronto habra nuevos proyectos para apoyar.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

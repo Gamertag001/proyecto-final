@@ -1,0 +1,262 @@
+{% extends './base.html' %}
+
+{% block title %}Panel Coordinador - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_coordinator.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_coordinador') }}" class="sidebar-nav-link active">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos Publicos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('crear_proyecto') }}" class="sidebar-nav-link">
+                <span>&#10133;</span>
+                <span>Crear Proyecto</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('reportes_coordinador') }}" class="sidebar-nav-link">
+                <span>&#128202;</span>
+                <span>Reportes</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">Mis Proyectos</h1>
+            <p class="page-subtitle">Gestion de proyectos de recaudacion</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar" style="background: linear-gradient(135deg, var(--primary-blue-purple), var(--primary-blue));">
+                {{ current_user.fullname[0] | upper if current_user.fullname else 'U' }}
+            </div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">{% if current_user.id_rol == 2 %}Administrador{% else %}Coordinador{% endif %}</div>
+            </div>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert-custom slide-up mt-4 {% if category == 'danger' %}alert-danger{% elif category == 'success' %}alert-success{% elif category == 'warning' %}alert-warning{% endif %}">
+            <span>{% if category == 'danger' %}&#10060;{% elif category == 'success' %}&#9989;{% else %}&#8505;{% endif %}</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon blue">&#128196;</div>
+            <div class="stat-value">{{ proyectos | length }}</div>
+            <div class="stat-label">Proyectos Totales</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon purple">&#9989;</div>
+            <div class="stat-value">{{ proyectos | selectattr('archivado', 'equalto', false) | list | length }}</div>
+            <div class="stat-label">Proyectos Activos</div>
+        </div>
+        <div class="stat-card slide-up stagger-3">
+            <div class="stat-icon gray">&#128451;</div>
+            <div class="stat-value">{{ proyectos | selectattr('archivado', 'equalto', true) | list | length }}</div>
+            <div class="stat-label">Proyectos Archivados</div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card-custom slide-up">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="card-title-gradient mb-0">Lista de Proyectos</h3>
+                    <a href="{{ url_for('crear_proyecto') }}" class="btn-primary-gradient">
+                        <span>&#10133;</span> Nuevo Proyecto
+                    </a>
+                </div>
+                
+                {% if proyectos %}
+                <div style="overflow-x: auto;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Proyecto</th>
+                                <th>Meta</th>
+                                <th>Recaudado</th>
+                                <th>Progreso</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proyecto in proyectos %}
+                            {% set detalles = proyectos_detalles.get(proyecto.id_proyecto, {}) %}
+                            <tr {% if proyecto.archivado %}style="opacity: 0.7; background: var(--bg-secondary);"{% endif %}>
+                                <td>
+                                    <div style="font-weight: 600; color: var(--text-primary);">{{ proyecto.nombre }}</div>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ proyecto.descripcion }}</div>
+                                </td>
+                                <td style="font-weight: 500;">${{ proyecto.monto_objetivo or 0 }}</td>
+                                <td style="color: var(--primary-magenta); font-weight: 600;">${{ proyecto.monto_recaudado or 0 }}</td>
+                                <td>
+                                    {% set pct = ((proyecto.monto_recaudado or 0) / (proyecto.monto_objetivo or 1) * 100) | int %}
+                                    {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+                                    <div style="width: 100px; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden;">
+                                        <div style="width: {{ pct }}%; height: 100%; background: linear-gradient(135deg, var(--primary-magenta), var(--primary-purple));"></div>
+                                    </div>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">{{ pct }}%</span>
+                                </td>
+                                <td>
+                                    {% if proyecto.archivado %}
+                                    <span class="badge" style="background: var(--warning-bg); color: var(--warning-color); padding: 4px 12px; border-radius: var(--radius-sm);">Archivado</span>
+                                    {% else %}
+                                    <span class="badge" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 4px 12px; border-radius: var(--radius-sm);">Activo</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <a href="{{ url_for('detalle_gestion_proyecto', id_proyecto=proyecto.id_proyecto) }}" class="btn-primary-gradient" style="padding: 4px 8px; font-size: 0.8rem;" title="Gestionar Proyecto">
+                                            &#128736;
+                                        </a>
+                                        <a href="{{ url_for('editar_proyecto', id_proyecto=proyecto.id_proyecto) }}" class="btn-outline-custom" style="padding: 4px 8px; font-size: 0.8rem;" title="Editar">
+                                            &#9998;
+                                        </a>
+                                        <a href="{{ url_for('ver_donaciones_proyecto', id_proyecto=proyecto.id_proyecto) }}" class="btn-outline-custom" style="padding: 4px 8px; font-size: 0.8rem;" title="Ver Donaciones">
+                                            &#128176;
+                                        </a>
+                                        <a href="{{ url_for('listar_gastos_proyecto', id_proyecto=proyecto.id_proyecto) }}" class="btn-outline-custom" style="padding: 4px 8px; font-size: 0.8rem;" title="Ver Gastos">
+                                            &#128181;
+                                        </a>
+                                        {% if proyecto.archivado %}
+                                        <form action="{{ url_for('desarchivar_proyecto', id_proyecto=proyecto.id_proyecto) }}" method="post" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn-outline-custom" style="padding: 4px 8px; font-size: 0.8rem; border-color: #22c55e; color: #22c55e;" title="Desarchivar">
+                                                &#9989;
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <form action="{{ url_for('archivar_proyecto', id_proyecto=proyecto.id_proyecto) }}" method="post" style="display: inline;" onsubmit="return confirm('Estas seguro de archivar este proyecto? No sera visible al publico.');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn-outline-custom" style="padding: 4px 8px; font-size: 0.8rem; border-color: var(--warning-color); color: var(--warning-color);" title="Archivar">
+                                                &#128451;
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="background: var(--bg-secondary);">
+                                <td colspan="6" style="padding: 12px 16px;">
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                                        <div style="background: var(--bg-primary); padding: 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--primary-purple);">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                <span style="font-weight: 600; color: var(--primary-purple); font-size: 0.9rem;">&#127919; Objetivos</span>
+                                                <span style="font-size: 0.75rem; background: var(--primary-purple); color: white; padding: 2px 8px; border-radius: 10px;">{{ detalles.objetivos_completados }}/{{ detalles.total_objetivos }}</span>
+                                            </div>
+                                            {% if detalles.objetivos %}
+                                            <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem;">
+                                                {% for obj in detalles.objetivos %}
+                                                <li style="padding: 4px 0; display: flex; align-items: center; gap: 6px; color: var(--text-secondary);">
+                                                    <span style="font-size: 0.8rem;">{% if obj.completado %}&#9989;{% else %}&#11093;{% endif %}</span>
+                                                    <span style="{% if obj.completado %}text-decoration: line-through; color: var(--text-muted);{% endif %}overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">{{ obj.descripcion }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% else %}
+                                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Sin objetivos definidos</p>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div style="background: var(--bg-primary); padding: 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--primary-blue);">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                <span style="font-weight: 600; color: var(--primary-blue); font-size: 0.9rem;">&#128197; Actividades</span>
+                                                <span style="font-size: 0.75rem; background: var(--primary-blue); color: white; padding: 2px 8px; border-radius: 10px;">{{ detalles.actividades_completadas }}/{{ detalles.total_actividades }}</span>
+                                            </div>
+                                            {% if detalles.actividades %}
+                                            <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem;">
+                                                {% for act in detalles.actividades %}
+                                                <li style="padding: 4px 0; display: flex; align-items: center; gap: 6px; color: var(--text-secondary);">
+                                                    <span style="font-size: 0.7rem; padding: 1px 6px; border-radius: 8px; 
+                                                        {% if act.estado == 'completada' %}background: rgba(34, 197, 94, 0.1); color: #22c55e;
+                                                        {% elif act.estado == 'en_progreso' %}background: rgba(59, 130, 246, 0.1); color: #3b82f6;
+                                                        {% else %}background: var(--warning-bg); color: var(--warning-color);{% endif %}">
+                                                        {% if act.estado == 'completada' %}OK{% elif act.estado == 'en_progreso' %}...{% else %}Pend{% endif %}
+                                                    </span>
+                                                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">{{ act.nombre }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% else %}
+                                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Sin actividades definidas</p>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div style="background: var(--bg-primary); padding: 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--primary-magenta);">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                <span style="font-weight: 600; color: var(--primary-magenta); font-size: 0.9rem;">&#9745; Tareas</span>
+                                                <span style="font-size: 0.75rem; background: var(--primary-magenta); color: white; padding: 2px 8px; border-radius: 10px;">{{ detalles.tareas_completadas }}/{{ detalles.total_tareas }}</span>
+                                            </div>
+                                            {% if detalles.tareas %}
+                                            <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem;">
+                                                {% for tarea in detalles.tareas %}
+                                                <li style="padding: 4px 0; display: flex; align-items: center; gap: 6px; color: var(--text-secondary);">
+                                                    <span style="font-size: 0.7rem; padding: 1px 6px; border-radius: 8px; 
+                                                        {% if tarea.estado == 'completada' %}background: rgba(34, 197, 94, 0.1); color: #22c55e;
+                                                        {% elif tarea.estado == 'en_progreso' %}background: rgba(59, 130, 246, 0.1); color: #3b82f6;
+                                                        {% else %}background: var(--warning-bg); color: var(--warning-color);{% endif %}">
+                                                        {% if tarea.estado == 'completada' %}OK{% elif tarea.estado == 'en_progreso' %}...{% else %}Pend{% endif %}
+                                                    </span>
+                                                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">{{ tarea.descripcion }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% else %}
+                                            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Sin tareas definidas</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 60px; color: var(--text-secondary);">
+                    <span style="font-size: 4rem; display: block; margin-bottom: 16px;">&#128196;</span>
+                    <p style="font-size: 1.1rem; margin-bottom: 24px;">No tienes proyectos creados</p>
+                    <a href="{{ url_for('crear_proyecto') }}" class="btn-primary-gradient">
+                        Crear tu primer proyecto
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

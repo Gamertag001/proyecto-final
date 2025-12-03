@@ -1,0 +1,110 @@
+<header class="mobile-header">
+    <span class="mobile-brand">AmicuSoft</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <button class="theme-toggle" aria-label="Cambiar tema" style="position: static; box-shadow: none;">
+            <div class="theme-toggle-icon sun-icon">&#9728;</div>
+            <div class="theme-toggle-icon moon-icon">&#9790;</div>
+        </button>
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</header>
+
+<nav class="mobile-nav" id="mobileNav">
+    <ul class="mobile-nav-list">
+        {% if current_user.id_rol == 1 %}
+        <li>
+            <a href="{{ url_for('home') }}" class="mobile-nav-link">
+                <span>&#127968;</span>
+                <span>Inicio</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('listar_proyectos') }}" class="mobile-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('historial_donaciones_usuario') }}" class="mobile-nav-link">
+                <span>&#128176;</span>
+                <span>Mis Donaciones</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('mi_informacion') }}" class="mobile-nav-link">
+                <span>&#128100;</span>
+                <span>Mi Perfil</span>
+            </a>
+        </li>
+        {% elif current_user.id_rol == 2 %}
+        <li>
+            <a href="{{ url_for('panel') }}" class="mobile-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('manage_user') }}" class="mobile-nav-link">
+                <span>&#128101;</span>
+                <span>Usuarios</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('listar_proyectos') }}" class="mobile-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        {% elif current_user.id_rol == 3 %}
+        <li>
+            <a href="{{ url_for('panel_coordinador') }}" class="mobile-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('listar_proyectos') }}" class="mobile-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('reportes_coordinador') }}" class="mobile-nav-link">
+                <span>&#128202;</span>
+                <span>Reportes</span>
+            </a>
+        </li>
+        {% elif current_user.id_rol == 4 %}
+        <li>
+            <a href="{{ url_for('panel_auditor') }}" class="mobile-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('auditor_reportes_donaciones') }}" class="mobile-nav-link">
+                <span>&#128176;</span>
+                <span>Donaciones</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('auditor_reportes_gastos') }}" class="mobile-nav-link">
+                <span>&#128179;</span>
+                <span>Gastos</span>
+            </a>
+        </li>
+        {% endif %}
+        <li>
+            <a href="{{ url_for('logout') }}" class="mobile-nav-link logout">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="mobile-overlay" id="mobileOverlay"></div>

@@ -1,0 +1,106 @@
+{% extends './base.html' %}
+
+{% block title %}Registro de Auditoria - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_auditor.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_auditor') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('auditor_reportes_donaciones') }}" class="sidebar-nav-link">
+                <span>&#128176;</span>
+                <span>Donaciones</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('auditor_reportes_gastos') }}" class="sidebar-nav-link">
+                <span>&#128181;</span>
+                <span>Gastos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('ver_auditoria') }}" class="sidebar-nav-link active">
+                <span>&#128203;</span>
+                <span>Auditoria</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">Registro de Auditoria</h1>
+            <p class="page-subtitle">Historial de acciones realizadas en el sistema</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">A</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">Auditor</div>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} fade-in mt-3">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="card-custom mt-4 slide-up">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="card-title-gradient">Historial de Acciones</h3>
+            <a href="{{ url_for('exportar_auditoria_excel') }}" class="btn-secondary-gradient">
+                &#128196; Exportar Excel
+            </a>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Accion</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.id }}</td>
+                        <td>{{ log.usuario_fullname }}</td>
+                        <td>{{ log.accion }}</td>
+                        <td>{{ log.fecha.strftime('%d/%m/%Y %H:%M:%S') if log.fecha else '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No hay registros de auditoria</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

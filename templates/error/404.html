@@ -1,0 +1,30 @@
+{% extends './base.html' %}
+
+{% block title %}Pagina No Encontrada - AmicuSoft{% endblock %}
+
+{% block body %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="text-center fade-in">
+        <div style="font-size: 8rem; font-weight: 700; background: linear-gradient(135deg, var(--primary-magenta), var(--primary-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1;">
+            404
+        </div>
+        
+        <h1 style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin: 24px 0 12px;">
+            Pagina No Encontrada
+        </h1>
+        
+        <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 400px; margin: 0 auto 32px;">
+            Lo sentimos, la pagina que buscas no existe o ha sido movida.
+        </p>
+        
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <a href="/" class="btn-primary-gradient">
+                Ir al Inicio
+            </a>
+            <a href="javascript:history.back()" class="btn-outline-custom">
+                Volver Atras
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

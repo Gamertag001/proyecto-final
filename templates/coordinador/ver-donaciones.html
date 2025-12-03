@@ -1,0 +1,127 @@
+{% extends './base.html' %}
+
+{% block title %}Donaciones del Proyecto - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_coordinator.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_coordinador') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('reportes_coordinador') }}" class="sidebar-nav-link">
+                <span>&#128202;</span>
+                <span>Reportes</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <a href="{{ url_for('panel_coordinador') }}" style="color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <span>&#8592;</span> Volver al Panel
+            </a>
+            <h1 class="page-title">Donaciones: {{ proyecto.nombre }}</h1>
+            <p class="page-subtitle">Historial de donaciones recibidas</p>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar" style="background: linear-gradient(135deg, var(--primary-blue-purple), var(--primary-blue));">D</div>
+            <div>
+                <div class="user-name">{{ current_user.fullname }}</div>
+                <div class="user-role">{% if current_user.id_rol == 2 %}Administrador{% else %}Coordinador{% endif %}</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats-grid mt-4">
+        <div class="stat-card slide-up stagger-1">
+            <div class="stat-icon purple">&#127937;</div>
+            <div class="stat-value">${{ proyecto.monto_objetivo or 0 }}</div>
+            <div class="stat-label">Meta del Proyecto</div>
+        </div>
+        <div class="stat-card slide-up stagger-2">
+            <div class="stat-icon blue">&#128176;</div>
+            <div class="stat-value">${{ proyecto.monto_recaudado or 0 }}</div>
+            <div class="stat-label">Total Recaudado</div>
+        </div>
+        <div class="stat-card slide-up stagger-3">
+            {% set pct = ((proyecto.monto_recaudado or 0) / (proyecto.monto_objetivo or 1) * 100) | int %}
+            {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+            <div class="stat-icon purple">&#128202;</div>
+            <div class="stat-value">{{ pct }}%</div>
+            <div class="stat-label">Progreso</div>
+        </div>
+        <div class="stat-card slide-up stagger-4">
+            <div class="stat-icon blue">&#128100;</div>
+            <div class="stat-value">{{ donaciones | length }}</div>
+            <div class="stat-label">Total Donantes</div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card-custom slide-up">
+                <h3 class="card-title-gradient">Lista de Donaciones</h3>
+                
+                {% if donaciones %}
+                <div style="overflow-x: auto; margin-top: 20px;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Donante</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donacion in donaciones %}
+                            <tr>
+                                <td>{{ donacion.fecha.strftime('%d/%m/%Y %H:%M') if donacion.fecha else '-' }}</td>
+                                <td>
+                                    <div style="font-weight: 500;">{{ donacion.nombre_donante or 'Anonimo' }}</div>
+                                </td>
+                                <td style="font-weight: 600; color: var(--primary-magenta);">${{ donacion.monto }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-muted);">Total de donaciones: {{ donaciones | length }}</span>
+                    <span style="font-weight: 600; color: var(--primary-magenta);">Total: ${{ proyecto.monto_recaudado or 0 }}</span>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 60px; color: var(--text-secondary);">
+                    <span style="font-size: 4rem; display: block; margin-bottom: 16px;">&#128176;</span>
+                    <p style="font-size: 1.1rem;">Este proyecto aun no ha recibido donaciones</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

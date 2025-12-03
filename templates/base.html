@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AmicuSoft{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block customCSS %}{% endblock %}
+</head>
+<body>
+    <button class="theme-toggle" aria-label="Cambiar tema">
+        <div class="theme-toggle-icon sun-icon">&#9728;</div>
+        <div class="theme-toggle-icon moon-icon">&#9790;</div>
+    </button>
+    
+    {% block mobile_menu %}{% endblock %}
+    
+    {% block body %}{% endblock %}
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block customJS %}{% endblock %}
+</body>
+</html>

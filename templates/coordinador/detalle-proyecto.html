@@ -1,0 +1,371 @@
+{% extends './base.html' %}
+
+{% block title %}Gestion de {{ proyecto.nombre }} - AmicuSoft{% endblock %}
+
+{% block mobile_menu %}
+{% include 'includes/mobile_menu_coordinator.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="sidebar fade-in">
+    <a href="#" class="sidebar-brand">AmicuSoft</a>
+    
+    <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('panel_coordinador') }}" class="sidebar-nav-link">
+                <span>&#127968;</span>
+                <span>Panel</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('listar_proyectos') }}" class="sidebar-nav-link">
+                <span>&#128196;</span>
+                <span>Proyectos Publicos</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('crear_proyecto') }}" class="sidebar-nav-link">
+                <span>&#10133;</span>
+                <span>Crear Proyecto</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item">
+            <a href="{{ url_for('reportes_coordinador') }}" class="sidebar-nav-link">
+                <span>&#128202;</span>
+                <span>Reportes</span>
+            </a>
+        </li>
+        <li class="sidebar-nav-item" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <span>&#128682;</span>
+                <span>Cerrar Sesion</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-bar slide-up">
+        <div>
+            <h1 class="page-title">{{ proyecto.nombre }}</h1>
+            <p class="page-subtitle">Gestion completa del proyecto</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('panel_coordinador') }}" class="btn-outline-custom">
+                <span>&#8592;</span> Volver
+            </a>
+        </div>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert-custom slide-up mt-4 {% if category == 'danger' %}alert-danger{% elif category == 'success' %}alert-success{% elif category == 'warning' %}alert-warning{% endif %}">
+            <span>{% if category == 'danger' %}&#10060;{% elif category == 'success' %}&#9989;{% else %}&#8505;{% endif %}</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+    <div class="card-custom slide-up mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="card-title-gradient mb-0">
+                <span>&#128203;</span> Estado del Proyecto
+            </h3>
+        </div>
+        <form method="POST" action="{{ url_for('actualizar_estado_proyecto', id_proyecto=proyecto.id_proyecto) }}" class="d-flex gap-3 align-items-center flex-wrap">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label-custom mb-0">Estado actual:</label>
+                <select name="estado" class="form-input-custom" style="width: auto; min-width: 180px;">
+                    <option value="en_planificacion" {% if proyecto.estado == 'en_planificacion' %}selected{% endif %}>En Planificacion</option>
+                    <option value="en_ejecucion" {% if proyecto.estado == 'en_ejecucion' or proyecto.estado == 'activo' %}selected{% endif %}>En Ejecucion</option>
+                    <option value="finalizado" {% if proyecto.estado == 'finalizado' %}selected{% endif %}>Finalizado</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary-gradient">
+                <span>&#128190;</span> Actualizar Estado
+            </button>
+        </form>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card-custom slide-up stagger-1">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="card-title-gradient mb-0">
+                        <span>&#127919;</span> Objetivos
+                    </h3>
+                </div>
+                
+                <form method="POST" action="{{ url_for('crear_objetivo', id_proyecto=proyecto.id_proyecto) }}" class="mb-4">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="d-flex gap-2">
+                        <input type="text" name="descripcion" class="form-input-custom" placeholder="Nuevo objetivo..." required>
+                        <button type="submit" class="btn-primary-gradient" style="white-space: nowrap;">
+                            <span>&#10133;</span>
+                        </button>
+                    </div>
+                </form>
+                
+                {% if objetivos %}
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% for objetivo in objetivos %}
+                    <li style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                            <form method="POST" action="{{ url_for('toggle_objetivo', id_objetivo=objetivo.id_objetivo) }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">
+                                    {% if objetivo.completado %}&#9989;{% else %}&#11093;{% endif %}
+                                </button>
+                            </form>
+                            <span style="{% if objetivo.completado %}text-decoration: line-through; color: var(--text-muted);{% endif %}">
+                                {{ objetivo.descripcion }}
+                            </span>
+                        </div>
+                        <form method="POST" action="{{ url_for('eliminar_objetivo', id_objetivo=objetivo.id_objetivo) }}" style="display: inline;" onsubmit="return confirm('Eliminar este objetivo?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn-outline-custom" style="padding: 4px 8px; font-size: 0.8rem; border-color: var(--danger-color); color: var(--danger-color);">
+                                &#128465;
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">No hay objetivos definidos</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card-custom slide-up stagger-2">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="card-title-gradient mb-0">
+                        <span>&#128101;</span> Equipo del Proyecto
+                    </h3>
+                </div>
+                
+                <form method="POST" action="{{ url_for('agregar_responsable', id_proyecto=proyecto.id_proyecto) }}" class="mb-4">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <select name="id_usuario" class="form-input-custom" required>
+                                <option value="">Seleccionar usuario...</option>
+                                {% for usuario in usuarios_disponibles %}
+                                <option value="{{ usuario.id }}">{{ usuario.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="rol_en_proyecto" class="form-input-custom" placeholder="Rol en proyecto">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn-primary-gradient w-100">
+                                <span>&#10133;</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                {% if responsables %}
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% for resp in responsables %}
+                    <li style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: var(--text-primary);">{{ resp.usuario_nombre }}</strong>
+                            {% if resp.rol_en_proyecto %}
+                            <span style="color: var(--primary-purple); font-size: 0.85rem;"> - {{ resp.rol_en_proyecto }}</span>
+                            {% endif %}
+                            <br><small style="color: var(--text-muted);">{{ resp.usuario_correo }}</small>
+                        </div>
+                        <form method="POST" action="{{ url_for('eliminar_responsable', id_responsable=resp.id_responsable) }}" style="display: inline;" onsubmit="return confirm('Eliminar este miembro del equipo?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn-outline-custom" style="padding: 4px 8px; font-size: 0.8rem; border-color: var(--danger-color); color: var(--danger-color);">
+                                &#128465;
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">No hay miembros en el equipo</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-custom slide-up mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="card-title-gradient mb-0">
+                <span>&#128197;</span> Actividades
+            </h3>
+        </div>
+        
+        <form method="POST" action="{{ url_for('crear_actividad', id_proyecto=proyecto.id_proyecto) }}" class="mb-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" name="nombre" class="form-input-custom" placeholder="Nombre de actividad *" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="descripcion" class="form-input-custom" placeholder="Descripcion">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="fecha_inicio" class="form-input-custom" title="Fecha inicio">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="fecha_fin" class="form-input-custom" title="Fecha fin">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn-primary-gradient w-100">
+                        <span>&#10133;</span> Agregar
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        {% if actividades %}
+        <div style="overflow-x: auto;">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Actividad</th>
+                        <th>Descripcion</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for act in actividades %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ act.nombre }}</td>
+                        <td>{{ act.descripcion or '-' }}</td>
+                        <td>{{ act.fecha_inicio or '-' }}</td>
+                        <td>{{ act.fecha_fin or '-' }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('actualizar_estado_actividad', id_actividad=act.id_actividad) }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <select name="estado" onchange="this.form.submit()" class="form-input-custom" style="padding: 4px 8px; font-size: 0.85rem; min-width: 120px;">
+                                    <option value="pendiente" {% if act.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                    <option value="en_progreso" {% if act.estado == 'en_progreso' %}selected{% endif %}>En Progreso</option>
+                                    <option value="completada" {% if act.estado == 'completada' %}selected{% endif %}>Completada</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('eliminar_actividad', id_actividad=act.id_actividad) }}" style="display: inline;" onsubmit="return confirm('Eliminar esta actividad?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn-outline-custom" style="padding: 4px 8px; font-size: 0.8rem; border-color: var(--danger-color); color: var(--danger-color);">
+                                    &#128465;
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No hay actividades definidas</p>
+        {% endif %}
+    </div>
+    
+    <div class="card-custom slide-up mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="card-title-gradient mb-0">
+                <span>&#9745;</span> Tareas
+            </h3>
+        </div>
+        
+        <form method="POST" action="{{ url_for('crear_tarea', id_proyecto=proyecto.id_proyecto) }}" class="mb-4">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" name="descripcion" class="form-input-custom" placeholder="Descripcion de tarea *" required>
+                </div>
+                <div class="col-md-3">
+                    <select name="usuario_id" class="form-input-custom">
+                        <option value="">Asignar a...</option>
+                        {% for usuario in usuarios_proyecto %}
+                        <option value="{{ usuario.id }}">{{ usuario.fullname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="fecha_inicio" class="form-input-custom" title="Fecha inicio">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="fecha_fin" class="form-input-custom" title="Fecha vencimiento">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn-primary-gradient w-100">
+                        <span>&#10133;</span> Agregar
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        {% if tareas %}
+        <div style="overflow-x: auto;">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Tarea</th>
+                        <th>Asignado a</th>
+                        <th>Fecha Inicio</th>
+                        <th>Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tarea in tareas %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ tarea.descripcion }}</td>
+                        <td>{{ tarea.usuario_nombre or 'Sin asignar' }}</td>
+                        <td>{{ tarea.fecha_inicio or '-' }}</td>
+                        <td>
+                            {% if tarea.fecha_fin %}
+                            <span {% if tarea.estado != 'completada' %}style="{% if tarea.fecha_fin < today %}color: var(--danger-color); font-weight: bold;{% endif %}"{% endif %}>
+                                {{ tarea.fecha_fin }}
+                            </span>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('actualizar_estado_tarea', id_tarea=tarea.id) }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <select name="estado" onchange="this.form.submit()" class="form-input-custom" style="padding: 4px 8px; font-size: 0.85rem; min-width: 120px;
+                                    {% if tarea.estado == 'pendiente' %}background: var(--warning-bg); color: var(--warning-color);
+                                    {% elif tarea.estado == 'en_progreso' %}background: rgba(59, 130, 246, 0.1); color: #3b82f6;
+                                    {% elif tarea.estado == 'completada' %}background: rgba(34, 197, 94, 0.1); color: #22c55e;{% endif %}">
+                                    <option value="pendiente" {% if tarea.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                    <option value="en_progreso" {% if tarea.estado == 'en_progreso' %}selected{% endif %}>En Progreso</option>
+                                    <option value="completada" {% if tarea.estado == 'completada' %}selected{% endif %}>Completada</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('eliminar_tarea', id_tarea=tarea.id) }}" style="display: inline;" onsubmit="return confirm('Eliminar esta tarea?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn-outline-custom" style="padding: 4px 8px; font-size: 0.8rem; border-color: var(--danger-color); color: var(--danger-color);">
+                                    &#128465;
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No hay tareas definidas</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
